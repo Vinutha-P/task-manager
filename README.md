@@ -121,7 +121,3 @@ sh scripts/run_question2.sh
 ```
 
 Question 2's script starts the Order API, starts Kong when the `kong` binary is on `PATH`, runs the MCP client, and sends 7 requests to show HTTP 429.
-
-## Submission archive
-
-`submission/Assignment_Submission.zip` contains this run guide, the source tree, and `Assignment_Report.pdf` (screenshots, code snippets, and these instructions).
