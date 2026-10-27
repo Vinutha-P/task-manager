@@ -1,0 +1,40 @@
+_format_version: "3.0"
+
+# Publishes the Order API through Kong.
+# Public route:  http://127.0.0.1:8000/api/orders
+# Upstream:      http://127.0.0.1:5001/orders
+# Rate limit:    5 requests per minute per client IP.
+
+services:
+  - name: order-api
+    url: http://127.0.0.1:5001
+    connect_timeout: 5000
+    read_timeout: 5000
+    write_timeout: 5000
+    routes:
+      - name: order-api-route
+        paths:
+          - /api/orders
+        strip_path: false
+        protocols:
+          - http
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5
+          policy: local
+          limit_by: ip
+          fault_tolerant: true
+          hide_client_headers: false
+          error_code: 429
+          error_message: "API rate limit exceeded (5 requests per minute)"
+      - name: pre-function
+        config:
+          access:
+            - |
+              local path = kong.request.get_path()
+              local new_path = path:gsub("^/api", "", 1)
+              if new_path == "" then
+                new_path = "/"
+              end
+              kong.service.request.set_path(new_path)

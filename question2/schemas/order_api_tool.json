@@ -1,0 +1,48 @@
+{
+  "name": "order_api",
+  "description": "Call the Order API. create_order posts a new order, get_order fetches one order by id, and list_orders returns every order. Requests go through the Kong route /api/orders.",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["action"],
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["create_order", "get_order", "list_orders"],
+        "description": "Which Order API operation to call."
+      },
+      "item": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Item name. Required when action is create_order."
+      },
+      "quantity": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Quantity greater than 0. Required when action is create_order."
+      },
+      "id": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Order id. Required when action is get_order."
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {"action": {"const": "create_order"}},
+          "required": ["action"]
+        },
+        "then": {"required": ["item", "quantity"]}
+      },
+      {
+        "if": {
+          "properties": {"action": {"const": "get_order"}},
+          "required": ["action"]
+        },
+        "then": {"required": ["id"]}
+      }
+    ]
+  }
+}

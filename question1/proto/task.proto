@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package taskmanager;
+
+// Task is the in-memory record stored by TaskService.
+message Task {
+  int32 id = 1;
+  string title = 2;
+  // One of: "pending", "in_progress", "done".
+  string status = 3;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  // Optional. Defaults to "pending" when empty.
+  string status = 2;
+}
+
+message GetTaskRequest {
+  int32 id = 1;
+}
+
+message UpdateTaskRequest {
+  int32 id = 1;
+  string status = 2;
+}
+
+// Empty input for the ListTasks server stream.
+message ListTasksRequest {}
+
+// One status change sent by the client on the bidirectional stream.
+message TaskUpdate {
+  int32 id = 1;
+  string status = 2;
+}
+
+service TaskService {
+  // 1. Create a new task.
+  rpc CreateTask(CreateTaskRequest) returns (Task);
+
+  // 2. Fetch a task by ID.
+  rpc GetTask(GetTaskRequest) returns (Task);
+
+  // 3. List all tasks (server streaming).
+  rpc ListTasks(ListTasksRequest) returns (stream Task);
+
+  // 4. Update task status.
+  rpc UpdateTask(UpdateTaskRequest) returns (Task);
+
+  // 5. Stream task updates (bidirectional streaming).
+  rpc StreamTaskUpdates(stream TaskUpdate) returns (stream Task);
+}
